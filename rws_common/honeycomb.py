@@ -9,6 +9,8 @@ sample_routes = {
   'heartbeat': 100,
 }
 
+debug_tokens = {}
+
 def_sample_rate = 2
 
 def _sampler(fields):
@@ -28,6 +30,10 @@ def _sampler(fields):
 
     response_code = fields.get('response.status_code')
     if response_code != 200:
+        sample_rate = 1
+      
+    token = fields.get('access_token')
+    if token is not None and token in debug_tokens:
         sample_rate = 1
     
     if _should_sample(fields.get('trace.trace_id'), sample_rate):
