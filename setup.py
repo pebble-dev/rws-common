@@ -7,6 +7,6 @@ setup(
     platforms='any',
     install_requires=[
         'Flask',
-        'honeycomb-beeline==2.11.4'
+        'honeycomb-beeline==2.12.1'
     ]
 )
