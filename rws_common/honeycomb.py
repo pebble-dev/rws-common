@@ -85,6 +85,19 @@ class TraceResponseWrapOuterWSGIMiddleware(object):
             if span:
                 headers.append(('traceresponse', f"00-{span.trace_id.replace('-','')}-{span.id.replace('-','')[-16:]}-{'00' if _local.pending else '01'}"))
                 _local.current_span = None
+
+            # Add a CORS header to allow fs.js to see 'traceresponse'.
+            found_cors_header = False
+            for n,(hdr,val) in enumerate(headers):
+                if hdr.lower == 'access-control-expose-headers':
+                    found_cors_header = True
+                    if val != '*':
+                        val += ',traceresponse'
+                        headers[n] = (hdr,val)
+                    break
+            if not found_cors_header:
+                headers.append(('Access-Control-Expose-Headers', 'traceresponse'))
+
             return start_response(status, headers, *args)
 
         return self.app(environ, _start_response)
