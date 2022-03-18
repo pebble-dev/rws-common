@@ -69,6 +69,8 @@ class TraceResponseWrapInnerWSGIMiddleware(object):
             span = bl.tracer_impl.get_active_span()
         _local.current_span = span
         _local.pending = True
+        if 'HTTP_X_FULLSTORY_SESSION_ID' in environ:
+            beeline.add_context_field('request.fullstory_session', environ['HTTP_X_FULLSTORY_SESSION_ID'])
         return self.app(environ, start_response)
 
 def _presend(fields):
