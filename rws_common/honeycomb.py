@@ -74,7 +74,7 @@ class TraceResponseWrapInnerWSGIMiddleware(object):
         return self.app(environ, start_response)
 
 def _presend(fields):
-    if _local.current_span.id == fields['trace.span_id']:
+    if _local.current_span and (_local.current_span.id == fields['trace.span_id']):
         _local.pending = False
 
 class TraceResponseWrapOuterWSGIMiddleware(object):
