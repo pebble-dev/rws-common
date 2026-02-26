@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='rws-common',
     version='0.1',
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     platforms='any',
     install_requires=[
         'Flask',
