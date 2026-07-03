@@ -1,8 +1,10 @@
+import os
 import threading
 
 from flask import request
 
 import beeline
+import beeline.propagation.w3c as w3c
 from beeline.patch import requests, urllib
 from beeline.middleware.flask import HoneyMiddleware
 from beeline.trace import _should_sample
@@ -105,7 +107,12 @@ class TraceResponseWrapOuterWSGIMiddleware(object):
         return self.app(environ, _start_response)
 
 def init(app, service):
-    beeline.init(service_name = service, sampler_hook=_sampler, presend_hook=_presend)
+    if os.environ.get('O11Y_SHOULD_USE_W3C_TRACE_HEADERS', False):
+        # Only turn this on once EVERYTHING has migrated to the new
+        # rws_common version that supports W3C trace headers.
+        beeline.init(service_name = service, sampler_hook=_sampler, presend_hook=_presend, http_trace_propagation_hook=w3c.http_trace_propagation_hook)
+    else:
+        beeline.init(service_name = service, sampler_hook=_sampler, presend_hook=_presend)
     app.wsgi_app = TraceResponseWrapInnerWSGIMiddleware(app.wsgi_app)
     HoneyMiddleware(app, db_events=True)
     app.wsgi_app = TraceResponseWrapOuterWSGIMiddleware(app.wsgi_app)
